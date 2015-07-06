@@ -9,38 +9,51 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        GoogleApiClient.OnConnectionFailedListener {
 
     private SupportMapFragment mapFragment;
     private GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
-    private long UPDATE_INTERVAL = 60000;  /* 60 secs */
-    private long FASTEST_INTERVAL = 5000; /* 5 secs */
+
+    HashMap<Marker, JSONObject> data = new HashMap<>();
+    Set<Marker> addedMarkers = new HashSet<>();
 
     /*
      * Define a request code to send to Google Play services This code is
      * returned in Activity.onActivityResult
      */
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+
+    Button next;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,29 +72,107 @@ public class MainActivity extends AppCompatActivity implements
             Toast.makeText(this, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
         }
 
+        next = (Button) findViewById(R.id.next);
     }
 
     protected void loadMap(GoogleMap googleMap) {
         map = googleMap;
         if (map != null) {
             // Map is ready
-            Toast.makeText(this, "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
             map.setMyLocationEnabled(true);
+            map.getUiSettings().setZoomControlsEnabled(true);
 
-            // Now that map has loaded, let's get our location!
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(LocationServices.API)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this).build();
 
             connectClient();
+            addMarkers();
         } else {
             Toast.makeText(this, "Error - Map was null!!", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void addMarkers() {
+        BitmapDescriptor defaultMarker =
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+
+        Marker m1 = map.addMarker(new MarkerOptions()
+                .position(new LatLng(37.458476, -122.156329))
+                .icon(defaultMarker));
+        JSONObject obj1 = new JSONObject();
+        try {
+            obj1.put("title", "Marker 1");
+            obj1.put("description", "Description 1");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        data.put(m1, obj1);
+
+        Marker m2 = map.addMarker(new MarkerOptions()
+                .position(new LatLng(37.458651, -122.166123))
+                .icon(defaultMarker));
+        JSONObject obj2 = new JSONObject();
+        try {
+            obj2.put("title", "Marker 2");
+            obj2.put("description", "Description 2");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        data.put(m2, obj2);
+
+        map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(final Marker marker) {
+                View v = getLayoutInflater().inflate(R.layout.marker_info, null);
+                TextView title = (TextView) v.findViewById(R.id.title);
+                TextView description = (TextView) v.findViewById(R.id.description);
+                try {
+                    title.setText(data.get(marker).getString("title"));
+                    description.setText(data.get(marker).getString("description"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return v;
+            }
+        });
+
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                if (addedMarkers.contains(marker)) {
+                    return;
+                }
+
+                addedMarkers.add(marker);
+                next.setText("Next Step (" + addedMarkers.size() + ")");
+
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            }
+        });
+
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (!addedMarkers.contains(marker)) {
+                    marker.showInfoWindow();
+                }
+
+                return true;
+            }
+        });
+    }
+
     protected void connectClient() {
-        // Connect the client.
         if (isGooglePlayServicesAvailable() && mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
@@ -97,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /*
-	 * Called when the Activity is no longer visible.
+     * Called when the Activity is no longer visible.
 	 */
     @Override
     protected void onStop() {
@@ -117,8 +208,8 @@ public class MainActivity extends AppCompatActivity implements
         switch (requestCode) {
 
             case CONNECTION_FAILURE_RESOLUTION_REQUEST:
-			/*
-			 * If the result code is Activity.RESULT_OK, try to connect again
+            /*
+             * If the result code is Activity.RESULT_OK, try to connect again
 			 */
                 switch (resultCode) {
                     case Activity.RESULT_OK:
@@ -164,32 +255,12 @@ public class MainActivity extends AppCompatActivity implements
         // Display the connection status
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location != null) {
-            Toast.makeText(this, "GPS location was found!", Toast.LENGTH_SHORT).show();
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
             map.animateCamera(cameraUpdate);
-            startLocationUpdates();
         } else {
             Toast.makeText(this, "Current location was null, enable GPS on emulator!", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    protected void startLocationUpdates() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                mLocationRequest, this);
-    }
-
-    public void onLocationChanged(Location location) {
-        // Report to the UI that the location was updated
-        String msg = "Updated Location: " +
-                Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-
     }
 
     /*
@@ -210,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-		/*
+        /*
 		 * Google Play services can resolve some errors it detects. If the error
 		 * has a resolution, try sending an Intent to start a Google Play
 		 * services activity that can resolve error.
