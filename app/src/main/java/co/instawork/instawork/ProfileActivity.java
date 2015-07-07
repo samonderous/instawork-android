@@ -1,6 +1,8 @@
 package co.instawork.instawork;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -10,12 +12,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.ipaulpro.afilechooser.utils.FileUtils;
+
+import java.io.File;
 
 public class ProfileActivity extends AppCompatActivity {
 
     static final int PICK_CONTACT = 1;
+
+    private static final String TAG = "FileChooserExampleActivity";
+
+    private static final int REQUEST_CODE = 6384; // onActivityResult request
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,14 +46,14 @@ public class ProfileActivity extends AppCompatActivity {
                             @Override
                             public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                                 if (which == 0) {
+                                    showChooser();
+                                } else if (which == 1) {
                                     Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                    startActivityForResult(takePicture, 4);
-                                } else if(which == 1){
+                                    startActivityForResult(takePicture, 0);
+                                } else if (which == 2) {
                                     Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                    startActivityForResult(pickPhoto, 4);
-                                } else if(which == 2) {
-
+                                    startActivityForResult(pickPhoto, 0);
                                 }
                             }
                         })
@@ -60,38 +70,40 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void showChooser() {
+        // Use the GET_CONTENT intent from the utility class
+        Intent target = FileUtils.createGetContentIntent();
+        // Create the chooser Intent
+        Intent intent = Intent.createChooser(
+                target, "Choose file");
+        try {
+            startActivityForResult(intent, REQUEST_CODE);
+        } catch (ActivityNotFoundException e) {
+            // The reason for the existence of aFileChooser
+        }
+    }
+
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
 
-        switch (reqCode) {
-            case (PICK_CONTACT):
-//                if (resultCode == Activity.RESULT_OK) {
-//
-//                    Uri contactData = data.getData();
-//                    Cursor c = managedQuery(contactData, null, null, null, null);
-//                    if (c.moveToFirst()) {
-//
-//
-//                        String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
-//
-//                        String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-//
-//                        if (hasPhone.equalsIgnoreCase("1")) {
-//                            Cursor phones = getContentResolver().query(
-//                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-//                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
-//                                    null, null);
-//                            phones.moveToFirst();
-//                            String cNumber = phones.getString(phones.getColumnIndex("data1"));
-//                            System.out.println("number is:" + cNumber);
-//                        }
-//                        String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-//
-//                        System.out.println(name);
-//                    }
-//                }
-                break;
+        if (reqCode == 0 && resultCode == RESULT_OK) {
+            Uri selectedImage = data.getData();
+            File image = new File(selectedImage.getPath());
+        } else if (reqCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+                // Get the URI of the selected file
+                final Uri uri = data.getData();
+                try {
+                    File resume = new File(uri.getPath());
+                    // Get the file path from the URI
+                    final String path = FileUtils.getPath(this, uri);
+                    Toast.makeText(ProfileActivity.this,
+                            "File Selected: " + path, Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
