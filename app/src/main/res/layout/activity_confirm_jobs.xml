@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="co.instawork.instawork.ConfirmJobsActivity">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:padding="8dp"
+            android:text="Selected Jobs: "
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ListView
+            android:id="@+id/list_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/email"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="Hi,\n\nMy name is Saureen and I am applying for a job. Here is the link to my application: www.google.com. Thanks for your time.\n\nBest,\nSaureen" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:src="@android:drawable/ic_menu_edit" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/apply"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Apply" />
+
+</LinearLayout>

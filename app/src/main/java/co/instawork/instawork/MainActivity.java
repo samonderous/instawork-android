@@ -40,12 +40,13 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    public static Set<Marker> selectedMarkers = new HashSet<>();
+    public static HashMap<Marker, JSONObject> data = new HashMap<>();
+
     private SupportMapFragment mapFragment;
     private GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
 
-    HashMap<Marker, JSONObject> data = new HashMap<>();
-    Set<Marker> addedMarkers = new HashSet<>();
 
     /*
      * Define a request code to send to Google Play services This code is
@@ -73,6 +74,13 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         next = (Button) findViewById(R.id.next);
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, ConfirmJobsActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     protected void loadMap(GoogleMap googleMap) {
@@ -149,12 +157,12 @@ public class MainActivity extends AppCompatActivity implements
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                if (addedMarkers.contains(marker)) {
+                if (selectedMarkers.contains(marker)) {
                     return;
                 }
 
-                addedMarkers.add(marker);
-                next.setText("Next Step (" + addedMarkers.size() + ")");
+                selectedMarkers.add(marker);
+                next.setText("Next Step (" + selectedMarkers.size() + ")");
 
                 marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
             }
@@ -163,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (!addedMarkers.contains(marker)) {
+                if (!selectedMarkers.contains(marker)) {
                     marker.showInfoWindow();
                 }
 
