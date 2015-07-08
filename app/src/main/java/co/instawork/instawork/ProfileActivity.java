@@ -1,7 +1,9 @@
 package co.instawork.instawork;
 
 import android.content.ActivityNotFoundException;
+import android.content.ClipboardManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,11 +23,7 @@ import java.io.File;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    static final int PICK_CONTACT = 1;
-
     private static final String TAG = "FileChooserExampleActivity";
-
-    private static final int REQUEST_CODE = 6384; // onActivityResult request
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
         choose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CharSequence[] items = {"Attach file from disk", "Image from Camera", "Image from Library"};
+                CharSequence[] items = {"Attach file from disk", "Image from Camera", "Image from Library", "Paste from clipboard"};
                 new MaterialDialog.Builder(ProfileActivity.this)
                         .items(items)
                         .itemsCallback(new MaterialDialog.ListCallback() {
@@ -53,7 +51,13 @@ public class ProfileActivity extends AppCompatActivity {
                                 } else if (which == 2) {
                                     Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                    startActivityForResult(pickPhoto, 0);
+                                    startActivityForResult(pickPhoto, 1);
+                                } else if (which == 3) {
+                                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                    if(clipboard.getPrimaryClip() != null) {
+                                        String copiedText = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
+                                        Toast.makeText(ProfileActivity.this, copiedText, Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             }
                         })
@@ -77,7 +81,7 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = Intent.createChooser(
                 target, "Choose file");
         try {
-            startActivityForResult(intent, REQUEST_CODE);
+            startActivityForResult(intent, 2);
         } catch (ActivityNotFoundException e) {
             // The reason for the existence of aFileChooser
         }
@@ -86,11 +90,14 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
-
         if (reqCode == 0 && resultCode == RESULT_OK) {
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            Toast.makeText(ProfileActivity.this, photo.getHeight() + " x " + photo.getWidth(), Toast.LENGTH_LONG).show();
+        } else if (reqCode == 1 && resultCode == RESULT_OK) {
             Uri selectedImage = data.getData();
-            File image = new File(selectedImage.getPath());
-        } else if (reqCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            Toast.makeText(ProfileActivity.this,
+                    "Image Selected: " + FileUtils.getPath(this, selectedImage), Toast.LENGTH_LONG).show();
+        } else if (reqCode == 2 && resultCode == RESULT_OK) {
             if (data != null) {
                 // Get the URI of the selected file
                 final Uri uri = data.getData();
