@@ -75,6 +75,15 @@ public class ProfileActivity extends AppCompatActivity {
                 displayContacts();
             }
         });
+
+        Button continueButton = (Button) findViewById(R.id.cont);
+        continueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(ProfileActivity.this, ConfirmationActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     private void displayContacts() {
