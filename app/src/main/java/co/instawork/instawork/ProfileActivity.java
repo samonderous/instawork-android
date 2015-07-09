@@ -54,7 +54,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     startActivityForResult(pickPhoto, 1);
                                 } else if (which == 3) {
                                     ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                    if(clipboard.getPrimaryClip() != null) {
+                                    if (clipboard.getPrimaryClip() != null) {
                                         String copiedText = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
                                         Toast.makeText(ProfileActivity.this, copiedText, Toast.LENGTH_LONG).show();
                                     }
@@ -69,9 +69,14 @@ public class ProfileActivity extends AppCompatActivity {
         references.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                displayContacts();
             }
         });
+    }
+
+    private void displayContacts() {
+        Intent i = new Intent(ProfileActivity.this, ContactsActivity.class);
+        startActivityForResult(i, 3);
     }
 
     private void showChooser() {
@@ -111,6 +116,8 @@ public class ProfileActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+        } else if (reqCode == 3 && resultCode == RESULT_OK) {
+            System.out.println(data.getStringArrayListExtra("selected_names"));
         }
     }
 
