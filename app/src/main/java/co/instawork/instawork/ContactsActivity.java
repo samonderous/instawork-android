@@ -81,7 +81,7 @@ public class ContactsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = getIntent();
-                intent.putStringArrayListExtra("selected_names", adapter.getSelectedNames());
+                intent.putExtra("selected_names", adapter.getSelectedNames());
                 setResult(RESULT_OK, intent);
                 finish();
             }

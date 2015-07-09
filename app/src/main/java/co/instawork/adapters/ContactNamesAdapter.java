@@ -10,8 +10,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.afollestad.materialdialogs.MaterialDialog;
 
+import java.util.HashMap;
+
+import co.instawork.classes.SelectedContact;
 import co.instawork.instawork.R;
 import co.instawork.views.LetterTileProvider;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -22,8 +25,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ContactNamesAdapter extends
         RecyclerView.Adapter<ContactNamesAdapter.ViewHolder> {
 
-    public static ArrayList<String> selectedNames = new ArrayList<>();
-    public static ArrayList<Integer> selectedPositions = new ArrayList<>();
+    public static HashMap<Integer, SelectedContact> selectedNames = new HashMap<>();
 
     private static String[] contacts;
     private static Activity activity;
@@ -48,15 +50,23 @@ public class ContactNamesAdapter extends
         }
 
         @Override
-        public void onClick(View view) {
+        public void onClick(final View view) {
             if (((ColorDrawable) view.getBackground()).getColor() == activity.getResources().getColor(R.color.gray)) {
-                selectedNames.remove(name.getText().toString());
-                selectedPositions.remove((Object) getLayoutPosition());
+                selectedNames.remove(getLayoutPosition());
                 view.setBackgroundColor(activity.getResources().getColor(R.color.background_window));
             } else {
-                selectedNames.add(name.getText().toString());
-                selectedPositions.add(getLayoutPosition());
-                view.setBackgroundColor(activity.getResources().getColor(R.color.gray));
+                CharSequence[] items = {"Friend/family", "Coworker", "Manager", "Owner", "Other"};
+                new MaterialDialog.Builder(activity)
+                        .items(items)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View v, int which, CharSequence text) {
+                                selectedNames.put(getLayoutPosition(),
+                                        new SelectedContact(name.getText().toString(), which, getLayoutPosition()));
+                                view.setBackgroundColor(activity.getResources().getColor(R.color.gray));
+                            }
+                        })
+                        .show();
             }
         }
     }
@@ -91,7 +101,7 @@ public class ContactNamesAdapter extends
         final Bitmap letterTile = tileProvider.getLetterTile(name, name, tileSize, tileSize);
         holder.image.setImageBitmap(letterTile);
 
-        if (selectedNames.contains(name)) {
+        if (selectedNames.containsKey(position)) {
             holder.layout.setBackgroundColor(activity.getResources().getColor(R.color.gray));
         } else {
             holder.layout.setBackgroundColor(activity.getResources().getColor(R.color.background_window));
@@ -104,11 +114,8 @@ public class ContactNamesAdapter extends
         return contacts.length;
     }
 
-    public ArrayList<String> getSelectedNames() {
+    public HashMap<Integer, SelectedContact> getSelectedNames() {
         return selectedNames;
     }
 
-    public ArrayList<Integer> getSelectedPositions() {
-        return selectedPositions;
-    }
 }

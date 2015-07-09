@@ -20,6 +20,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import java.io.File;
+import java.util.HashMap;
+
+import co.instawork.classes.SelectedContact;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -117,7 +120,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
         } else if (reqCode == 3 && resultCode == RESULT_OK) {
-            System.out.println(data.getStringArrayListExtra("selected_names"));
+            System.out.println((HashMap<Integer, SelectedContact>) data.getSerializableExtra("selected_names"));
         }
     }
 
