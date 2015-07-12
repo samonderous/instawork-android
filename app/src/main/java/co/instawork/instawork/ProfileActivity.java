@@ -2,6 +2,8 @@ package co.instawork.instawork;
 
 import android.content.ActivityNotFoundException;
 import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,13 +11,17 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneNumberFormattingTextWatcher;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
@@ -27,6 +33,7 @@ import co.instawork.classes.SelectedContact;
 public class ProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "FileChooserExampleActivity";
+    private Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +89,57 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent i = new Intent(ProfileActivity.this, ConfirmationActivity.class);
                 startActivity(i);
+            }
+        });
+
+        TextView otherRef = (TextView) findViewById(R.id.other_ref);
+        otherRef.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialogWrapper.Builder dialog = new AlertDialogWrapper.Builder(context);
+                dialog.setTitle("Add other reference");
+
+                LinearLayout layout = new LinearLayout(context);
+                layout.setOrientation(LinearLayout.VERTICAL);
+
+                float scale = getResources().getDisplayMetrics().density;
+                int dpAsPixels = (int) (12 * scale + 0.5f);
+
+                final EditText nameBox = new EditText(context);
+                nameBox.setHint("Name");
+                nameBox.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(dpAsPixels, 0, dpAsPixels, 0);
+                nameBox.setLayoutParams(params);
+                layout.addView(nameBox);
+
+                final EditText phoneBox = new EditText(context);
+                phoneBox.setHint("Phone Number");
+                phoneBox.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+                phoneBox.setInputType(InputType.TYPE_CLASS_PHONE);
+                phoneBox.setLayoutParams(params);
+                layout.addView(phoneBox);
+
+                dialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(context, "Reference added: " + nameBox.getText().toString() + ", " + phoneBox.getText().toString(),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                dialog.setView(layout);
+                dialog.show();
             }
         });
     }
