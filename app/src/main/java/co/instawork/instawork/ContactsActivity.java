@@ -1,7 +1,6 @@
 package co.instawork.instawork;
 
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -37,27 +36,14 @@ public class ContactsActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final Set<String> contactNames = new HashSet<>();
-                ContentResolver cr = getContentResolver();
-                Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
-                        null, null, null, null);
-                if (cur.getCount() > 0) {
-                    while (cur.moveToNext()) {
-                        String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-                        String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                        if (Integer.parseInt(cur.getString(
-                                cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                            Cursor pCur = cr.query(
-                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                    null,
-                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                                    new String[]{id}, null);
-                            while (pCur.moveToNext()) {
-                                contactNames.add(name);
-                            }
-                            pCur.close();
-                        }
-                    }
+
+                Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                while (phones.moveToNext()) {
+                    String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+//                    String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    contactNames.add(name);
                 }
+                phones.close();
 
                 final String[] array = contactNames.toArray(new String[contactNames.size()]);
                 Arrays.sort(array);
