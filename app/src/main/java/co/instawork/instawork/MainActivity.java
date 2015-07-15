@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements
             connectClient();
             addMarkers();
         } else {
-            Toast.makeText(this, "Error - Map was null!!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error - Map was null.", Toast.LENGTH_SHORT).show();
         }
     }
 
