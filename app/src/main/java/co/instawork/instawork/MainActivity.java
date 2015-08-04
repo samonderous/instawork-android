@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, ConfirmJobsActivity.class);
+                Intent i = new Intent(MainActivity.this, JobListActivity.class);
                 startActivity(i);
             }
         });
@@ -100,10 +100,14 @@ public class MainActivity extends AppCompatActivity implements
                 while (phones.moveToNext()) {
                     String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                     String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    int type = phones.getInt(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                    String label = (String) ContactsContract.CommonDataKinds.Phone.getTypeLabel(getResources(), type, "");
+
                     JSONObject obj = new JSONObject();
                     try {
                         obj.put("name", name);
                         obj.put("number", phone);
+                        obj.put("label", label);
                         contacts.put(obj);
                     } catch (JSONException e) {
                         e.printStackTrace();

@@ -7,4 +7,5 @@
     <string name="title_activity_profile">Profile</string>
     <string name="title_activity_contacts">Contacts</string>
     <string name="title_activity_confirmation">Confirmation</string>
+    <string name="title_activity_job_list">JobListActivity</string>
 </resources>

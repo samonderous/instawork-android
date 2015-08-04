@@ -73,11 +73,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".ConfirmJobsActivity"
-            android:label="@string/title_activity_confirm_jobs" >
-        </activity>
-        <activity
-            android:name=".ProfileActivity"
+            android:name=".JobInformationActivity"
             android:label="@string/title_activity_profile" >
         </activity>
         <activity
@@ -87,6 +83,14 @@
         <activity
             android:name=".ConfirmationActivity"
             android:label="@string/title_activity_confirmation" >
+        </activity>
+        <activity
+            android:name=".ProfileActivity"
+            android:label="@string/title_activity_profile" >
+        </activity>
+        <activity
+            android:name=".JobListActivity"
+            android:label="@string/title_activity_job_list" >
         </activity>
     </application>
 

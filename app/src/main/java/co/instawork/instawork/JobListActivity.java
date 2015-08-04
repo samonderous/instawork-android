@@ -1,30 +1,43 @@
 package co.instawork.instawork;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.PhoneNumberFormattingTextWatcher;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.CheckedTextView;
+import android.widget.ListView;
 
-public class ProfileActivity extends AppCompatActivity {
+public class JobListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.activity_job_list);
 
-        EditText phone = (EditText) findViewById(R.id.phone);
-        phone.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+        String[] jobs = {"Ballboy", "Dish cleaner", "Testing"};
+
+        ListView listView = (ListView) findViewById(R.id.list_view);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, jobs);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                CheckedTextView textView = (CheckedTextView) view;
+                textView.setChecked(!textView.isChecked());
+            }
+        });
 
         Button continueButton = (Button) findViewById(R.id.cont);
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(ProfileActivity.this, JobInformationActivity.class);
+                Intent i = new Intent(JobListActivity.this, ProfileActivity.class);
                 startActivity(i);
             }
         });
@@ -33,7 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_profile, menu);
+        getMenuInflater().inflate(R.menu.menu_job_list, menu);
         return true;
     }
 

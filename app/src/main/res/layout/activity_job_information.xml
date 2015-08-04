@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="co.instawork.instawork.ConfirmJobsActivity">
+    tools:context="co.instawork.instawork.JobInformationActivity">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="8dp">
 
         <TextView
             android:layout_width="fill_parent"
@@ -24,6 +25,45 @@
             android:id="@+id/list_view"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/references"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="12dp"
+            android:text="References" />
+
+        <TextView
+            android:id="@+id/other_ref"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="4dp"
+            android:text="+ Add Other Reference"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Resume: " />
+
+            <Button
+                android:id="@+id/choose"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Choose" />
+        </LinearLayout>
+
 
         <FrameLayout
             android:layout_width="fill_parent"
@@ -47,9 +87,8 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/apply"
+        android:id="@+id/cont"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Apply" />
-
+        android:text="Continue" />
 </LinearLayout>
